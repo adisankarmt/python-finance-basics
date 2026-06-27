@@ -81,6 +81,9 @@ print("\nChart saved as 01_time_series_analysis.png")
 # -----------------------------------------------------------------------------
 # Understanding the distribution of prices gives context before deeper analysis.
 
+if isinstance(close_prices, pd.DataFrame):
+    close_prices = close_prices.iloc[:, 0]
+
 print("\n--- Descriptive Statistics: Daily Close Price ---")
 print(f"  Start Price : ${close_prices.iloc[0]:.2f}")
 print(f"  End Price   : ${close_prices.iloc[-1]:.2f}")
