@@ -1,0 +1,91 @@
+# =============================================================================
+# TIME SERIES ANALYSIS OF STOCK PRICES
+# =============================================================================
+# This script downloads historical stock price data and performs basic
+# time series analysis — one of the foundational tasks in quantitative finance.
+#
+# Concepts covered:
+#   - Downloading real market data using yfinance
+#   - Plotting price series over time
+#   - Identifying trends visually
+#   - Resampling: converting daily data to monthly data
+#
+# Author: Adisankar Manoj Thanuja
+# =============================================================================
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import yfinance as yf
+
+# -----------------------------------------------------------------------------
+# STEP 1: Download historical price data
+# -----------------------------------------------------------------------------
+# We use Apple (AAPL) as our example stock.
+# yfinance pulls data directly from Yahoo Finance — no API key needed.
+
+ticker = "AAPL"
+start_date = "2020-01-01"
+end_date   = "2024-12-31"
+
+print(f"Downloading data for {ticker} from {start_date} to {end_date}...")
+data = yf.download(ticker, start=start_date, end=end_date, auto_adjust=True)
+
+# We work with the daily closing price — the price at market close each day.
+close_prices = data["Close"]
+
+print(f"\nData loaded. Shape: {close_prices.shape}")
+print(f"First 5 rows:\n{close_prices.head()}")
+
+# -----------------------------------------------------------------------------
+# STEP 2: Plot the raw price series
+# -----------------------------------------------------------------------------
+# A time series plot is the first thing any analyst does with price data.
+# It immediately reveals bull runs, crashes, and overall trend direction.
+
+fig, axes = plt.subplots(2, 1, figsize=(12, 8))
+fig.suptitle(f"{ticker} — Time Series Analysis (2020–2024)", fontsize=14, fontweight="bold")
+
+# Top chart: full price series
+axes[0].plot(close_prices, color="#1f4e79", linewidth=1.2, label="Daily Close Price")
+axes[0].set_title("Daily Closing Price")
+axes[0].set_ylabel("Price (USD)")
+axes[0].set_xlabel("")
+axes[0].legend()
+axes[0].grid(True, alpha=0.3)
+
+# -----------------------------------------------------------------------------
+# STEP 3: Resample to monthly frequency
+# -----------------------------------------------------------------------------
+# Daily data has a lot of noise. Resampling to monthly gives a cleaner picture
+# of the underlying trend. We take the last price of each month.
+
+monthly_prices = close_prices.resample("ME").last()
+
+# Bottom chart: monthly price series
+axes[1].plot(monthly_prices, color="#c55a11", linewidth=1.8,
+             marker="o", markersize=4, label="Month-End Close Price")
+axes[1].set_title("Monthly Closing Price (Resampled)")
+axes[1].set_ylabel("Price (USD)")
+axes[1].set_xlabel("Date")
+axes[1].legend()
+axes[1].grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig("01_time_series_analysis.png", dpi=150, bbox_inches="tight")
+plt.show()
+print("\nChart saved as 01_time_series_analysis.png")
+
+# -----------------------------------------------------------------------------
+# STEP 4: Basic descriptive statistics of the price series
+# -----------------------------------------------------------------------------
+# Understanding the distribution of prices gives context before deeper analysis.
+
+print("\n--- Descriptive Statistics: Daily Close Price ---")
+print(f"  Start Price : ${close_prices.iloc[0]:.2f}")
+print(f"  End Price   : ${close_prices.iloc[-1]:.2f}")
+print(f"  Minimum     : ${close_prices.min():.2f}")
+print(f"  Maximum     : ${close_prices.max():.2f}")
+print(f"  Mean        : ${close_prices.mean():.2f}")
+print(f"  Std Dev     : ${close_prices.std():.2f}")
+print(f"  Total days  : {len(close_prices)}")
